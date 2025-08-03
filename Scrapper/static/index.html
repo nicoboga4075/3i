@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="scrapper-container">
+    <h1><i class="fas fa-scroll"></i>&nbsp;Google Drive Scrapper</h1>
+    <form action="/scrap" method="post" id="scrapper-form">
+        <button type="submit" id="submit-btn">
+            <i class="fas fa-check"></i>&nbsp;&nbsp;Compute
+        </button>
+    </form>
+</div>
+<script>
+        // Displays SweetAlert message if it exists with safe encoding (escaping)
+        const message = "{{ message|e }}";
+        const icon = "{{ icon|e }}";
+
+        if (message != "None" && message != "") {
+            Swal.fire({
+                title: 'Message',
+                text: message,
+                icon: icon,
+                confirmButtonText: 'OK'
+            });
+        }
+
+        // Shows loader in the button when the form is submitted
+        const submitButton = document.getElementById('submit-btn');
+
+        // Submits form only on button click
+        submitButton.addEventListener("click", function () {
+            if (inputField.value.trim() !== "") {
+                submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i>&nbsp;&nbsp;Computing...';
+                document.getElementById("scrapper-form").submit();
+                submitButton.disabled = true;
+            }
+        });
+</script>
+{% endblock %}
