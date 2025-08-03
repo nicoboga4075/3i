@@ -630,3 +630,5 @@ FodyWeavers.xsd
 pyvenv.cfg
 .venv
 pip-selfcheck.json
+credentials.json
+token.json
