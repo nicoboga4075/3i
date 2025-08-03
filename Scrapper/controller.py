@@ -68,16 +68,15 @@ async def dispatch(request: Request, call_next):
     start_time = time()
     response = await call_next(request)
     process_time = time() - start_time
-    log_dict = {
-        "method": request.method,
-        "url": request.url.path,
-        "status_code": response.status_code,
-        "process_time": process_time
-    }
+    log_msg = (
+        f"{request.method} {request.url.path} - "
+        f"Status: {response.status_code} - "
+        f"Process time: {process_time:.3f}s"
+    )
     if response.status_code == 200:
-        logger.info("Request succeeded", extra=log_dict)
+        logger.info(log_msg)
     else:
-        logger.error("Request failed", extra=log_dict)
+        logger.error(log_msg)
     return response
 
 app.add_middleware(BaseHTTPMiddleware, dispatch = dispatch)
@@ -130,9 +129,9 @@ def home(request : Request):
 
 @app.post("/scrap", response_class=PrettyJSONResponse, status_code=status.HTTP_200_OK,
 description = ".", tags = ["Endpoints"])
-def scrap():
+def scrap(request: Request):
     """Shows basic usage of the Drive v3 API.
-    Prints the names and ids of the first 10 files the user has access to.
+    Prints the names and ids of all the files the user has access to.
     """
     creds = None
     # The file token.json stores the user's access and refresh tokens, and is
@@ -151,17 +150,32 @@ def scrap():
         with open("token.json", "w", encoding="utf-8") as token:
             token.write(creds.to_json())
     try:
-        service = build("drive", "v3", credentials=creds)
         # Call the Drive v3 API
-        results = (service.files().list(pageSize=10, fields="nextPageToken, files(id, name)").execute()) # pylint: disable=no-member
-        items = results.get("files", [])
-        if not items:
+        service = build("drive", "v3", credentials=creds)
+        all_files = []
+        page_token = None
+        while True:
+            results = service.files().list(
+                pageSize=1000,  # max autorisé par API
+                fields="nextPageToken, files(id, name, mimeType, parents)",
+                pageToken=page_token
+            ).execute()
+
+            items = results.get("files", [])
+            all_files.extend(items)
+
+            page_token = results.get("nextPageToken", None)
+            if page_token is None or page_token == "":
+                break
+        if not all_files:
             print("No files found.")
-            return
-        print("Files:")
-        for item in items:
-            print(f"{item['name']} ({item['id']})")
-        return items
+        else:
+            print(f"Found {len(all_files)} files.")
+            print("Files:")
+            for file in all_files:
+                print(f"{file['name']} ({file['mimeType']})")
+        results = [models.FileInfo(**file) for file in all_files]
+        return views.ResultsView().render(request, results = results)
     except HttpError as error:
         # Handle errors from the Drive API
         logger.error(f"An error occurred while calling the Drive API: {error}")

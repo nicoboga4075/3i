@@ -81,3 +81,32 @@ class IndexView(BaseView):
         message = response.get('message')
         icon = response.get('icon')
         return super().render(request, {"message": message, "icon": icon})
+
+class ResultsView(BaseView):
+    """ View for displaying scrapped results
+
+    This view is responsible for rendering the scrapped results.
+
+    >>> view = ResultsView()
+    >>> view.template_name
+    'results.html'
+
+    """
+    def render(self, request: Request, **response):
+        """ Renders a template for scrapping
+        
+        >>> class MockRequest:
+        ...     pass
+        ...
+        >>> view = ResultsView()
+        >>> mock_results = [{"id": "1", "name": "toto.mp4", "mimeType":"video/mp4"}]
+        >>> mock_response = {"results": mock_results}
+        >>> rendered = view.render(MockRequest(), **mock_response)
+        >>> len(rendered.body.decode()) > 0 # Checks if response body is not empty
+        True
+        >>> any(str(result['result']) in rendered.body.decode() for result in mock_results)
+        True
+
+        """
+
+        return super().render(request, {"results" : response.get('results',[])})

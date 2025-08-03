@@ -51,3 +51,27 @@ tr:nth-child(even) {
     margin: 0 auto;
     text-align: center;
 }
+
+.scrapper-container input {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.results-container {
+    max-width: 800px;
+    margin: 50px auto;
+    padding: 20px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.overflow-list {
+    max-height: 400px;
+    overflow-y: auto;
+    margin: 10px 0;
+    padding: 10px;
+}

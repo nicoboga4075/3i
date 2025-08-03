@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="results-container">
+    <button id="back-btn" onclick="window.location.href='/home'">
+        <i class="fas fa-home"></i>&nbsp;&nbsp;Back to Home
+    </button>
+    <div class="overflow-list">
+        {% if results and results|length > 0 %}
+        <table>
+            <thead>
+                <tr>
+                    {% for key in results[0].dict().keys() %}
+                    <th>{{ key }}</th>
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for result in results %}
+                <tr>
+                    {% for value in result.dict().values() %}
+                    <td>{{ value }}</td>
+                    {% endfor %}
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p>No files found.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
