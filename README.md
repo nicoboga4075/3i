@@ -5,5 +5,5 @@ This Python project is a **Google Drive Scrapper** built using **FastAPI** frame
 ### Accessing the API Documentation
 FastAPI provides automatic interactive API documentation. You can access it by visiting the following links in your browser :
 
-- **Swagger UI** : http://localhost:8000/docs
-- **Redoc** : http://localhost:8000/redoc
+- **Swagger UI** : http://localhost:8008/docs
+- **Redoc** : http://localhost:8008/redoc
