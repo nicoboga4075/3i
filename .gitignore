@@ -630,5 +630,10 @@ FodyWeavers.xsd
 pyvenv.cfg
 .venv
 pip-selfcheck.json
+
+# Secret
 credentials.json
 token.json
+
+# OpenAPI
+openapi.json

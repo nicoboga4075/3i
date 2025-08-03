@@ -6,7 +6,7 @@
     <ProjectGuid>ffafa81f-fa52-4e0f-80f9-1e57d0cd96d4</ProjectGuid>
     <ProjectHome>.</ProjectHome>
     <ProjectTypeGuids>{1b580a1a-fdb3-4b32-83e1-6407eb2722e6};{349c5851-65df-11da-9384-00065b846f21};{888888a0-9f3d-457c-b088-3a5042f75d52}</ProjectTypeGuids>
-    <StartupFile>quickstart.py</StartupFile>
+    <StartupFile>app.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
@@ -17,6 +17,7 @@
     <Name>3i</Name>
     <RootNamespace>3i</RootNamespace>
     <InterpreterId>Global|PythonCore|3.12</InterpreterId>
+    <WebBrowserPort>8008</WebBrowserPort>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <DebugSymbols>true</DebugSymbols>
@@ -31,6 +32,21 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="quickstart.py" />
+    <Compile Include="app.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Scrapper\controller.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Scrapper\models.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Scrapper\views.py">
+      <SubType>Code</SubType>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Scrapper\" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.Web.targets" />
   <!-- Specify pre- and post-build commands in the BeforeBuild and 
