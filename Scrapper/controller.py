@@ -115,7 +115,7 @@ def index(request: Request):
     return response
 
 @app.get("/home", response_class=HTMLResponse, status_code=status.HTTP_200_OK,
-description = "Renders the home page (same as / but without welcome message).", tags = ["Endpoints"])
+description = "Renders home page (same as / but without welcome message).", tags = ["Endpoints"])
 def home(request : Request):
     """
     >>> from unittest.mock import MagicMock
@@ -128,10 +128,10 @@ def home(request : Request):
     return response
 
 @app.post("/scrap", response_class=PrettyJSONResponse, status_code=status.HTTP_200_OK,
-description = ".", tags = ["Endpoints"])
+description = "Shows basic usage of the Drive v3 API.", tags = ["Endpoints"])
 def scrap(request: Request):
-    """Shows basic usage of the Drive v3 API.
-    Prints the names and ids of all the files the user has access to.
+    """
+    Prints the files in the user's Google Drive, excluding folders, deleted and hidden files.
     """
     creds = None
     # The file token.json stores the user's access and refresh tokens, and is
@@ -154,24 +154,39 @@ def scrap(request: Request):
         service = build("drive", "v3", credentials=creds)
         all_files = []
         page_token = None
+        parent_cache = {}
         while True:
-            results = service.files().list(
-                pageSize=1000,  # max autorisé par API
-                fields="nextPageToken, files(id, name, mimeType, parents)",
-                pageToken=page_token
-            ).execute()
-
+            query = ("trashed = false and "
+                  "mimeType != 'application/vnd.google-apps.folder' and "
+                  "mimeType != 'application/vnd.google-apps.shortcut' and "
+                  "mimeType != 'application/vnd.google-apps.drive-sdk' and "
+                  "mimeType != 'application/vnd.google-apps.unknown' and "
+                  "not name contains '.DS_Store' and "
+                  "not name contains 'Thumbs.db' and "
+                  "visibility = 'limited'")
+            results = service.files().list(q=query,pageSize=1000,orderBy="name",fields="nextPageToken, files(id, name, mimeType, trashed, parents)",pageToken=page_token).execute() # pylint: disable=no-member
             items = results.get("files", [])
+            for item in items:
+                parent_id = item.get("parents", [None])[0]
+                if parent_id:
+                    if parent_id not in parent_cache:
+                        try:
+                            parent = service.files().get(fileId=parent_id, fields="id, name").execute() # pylint: disable=no-member
+                            parent_cache[parent_id] = parent
+                        except Exception as e:
+                            print(f"Failed to fetch parent for file {item.get('name')}: {e}")
+                            parent_cache[parent_id] = {"id": "", "name": ""}
+                    parent = parent_cache[parent_id]
+                    item["parentId"] = parent.get("id")
+                    item["parentName"] = parent.get("name")
             all_files.extend(items)
-
             page_token = results.get("nextPageToken", None)
-            if page_token is None or page_token == "":
+            if not page_token:
                 break
         if not all_files:
             print("No files found.")
         else:
             print(f"Found {len(all_files)} files.")
-            print("Files:")
             for file in all_files:
                 print(f"{file['name']} ({file['mimeType']})")
         results = [models.FileInfo(**file) for file in all_files]
